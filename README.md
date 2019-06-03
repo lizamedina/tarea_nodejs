@@ -2,4 +2,3 @@
 tarea nodejs
 integrantes:
 Liza Medina
-Victoria Colman
