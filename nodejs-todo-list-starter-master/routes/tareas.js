@@ -211,9 +211,66 @@ async function obtenerTarea(req, res) {
   
 }
 
+/**
+ * Modifica una tarea teniendo su identificador idTarea
+ *
+ * @param {object} req Petición HTTP
+ * @param {object} res Respuesta HTTP
+ */
+async function modificaTarea(req, res, next) {
+  const acceptHeader = req.header("Accept");
+  if (!validAcceptHeader(acceptHeader)) {
+    res.statusCode = 400;
+    res.send({
+      details:
+        "This endpoint only support 'application/json' media type, please verify your `Accept` header ",
+      message: `Media not supported :  ${acceptHeader}`
+    });
+    res.end();
+    return;
+  }
+  const {idTarea}  = req.params;
+  const jsonBody = req.body;
+  try{
+    const tarea = await tareasLogic.update(idTarea,jsonBody);
+    res.send(tarea);
+    res.statusCode = 200;
+    res.end();
+  }
+  catch(error){
+    res.statusCode = 400;
+    res.send({
+      message: `No se puede encontrar el objeto con id : ${idTarea}`,
+      details: "Este endpoint espera un objeto identificador valido"
+    });
+    res.end();
+  }
+}
 
+/**
+ * Elimina una tarea teniendo su identificador idTarea
+ *
+ * @param {object} req Petición HTTP
+ * @param {object} res Respuesta HTTP
+ */
+async function eliminaTarea(req, res, next) {
 
-
+  const {idTarea}  = req.params;
+  try{
+    const tarea = await tareasLogic.erase(idTarea);
+    res.send(tarea);
+    res.statusCode = 200;
+    res.end();
+  }
+  catch(error){
+    res.statusCode = 400;
+    res.send({
+      message: `No se encuentra eb objeto con id : ${idTarea}`,
+      details: "Este endpoint espera un ibjeto identificador valido"
+    });
+    res.end();
+  }
+}
 
 
 tareasRouter
@@ -240,5 +297,8 @@ tareasRouter
     res.statusCode = 405;
     res.end("POST operation is not suported on /tareas/" + req.params.idTarea);
   })
-  
+  .put(modificaTarea)
+  .delete(eliminaTarea);
+
 module.exports = tareasRouter;
+
