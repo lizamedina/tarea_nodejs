@@ -113,6 +113,10 @@ function validContentTypeHeader(contentTypeHeader) {
  * @param {object} res Respuesta HTTP
  */
 async function obtenerTareas(req, res, next) {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader("Access-Control-Allow-Headers", "Accept,Content-Type");
+  res.setHeader("Content-Type", "application/json");
+  res.setHeader("Accept", "application/json");
   const acceptHeader = req.header("Accept");
   if (!validAcceptHeader(acceptHeader)) {
     res.statusCode = 400;
@@ -138,6 +142,8 @@ async function obtenerTareas(req, res, next) {
  * @param {object} res Respuesta HTTP
  */
 async function crearTarea(req, res) {
+	res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader("Access-Control-Allow-Headers", "Accept,Content-Type");
   const contenTypeHeader = req.header("Content-Type");
   if (!validContentTypeHeader(contenTypeHeader)) {
     res.statusCode = 400;
@@ -148,33 +154,30 @@ async function crearTarea(req, res) {
     res.end();
     return;
   }
-
-  const jsonBody = req.body;
-
-  if (jsonBody.description != 'undefined') {
+  try{
+    const jsonBody = req.body;
+    console.info('jsonBody._id: ' + `${jsonBody._id}` + ' and jsonBody.id: ' +  `${jsonBody.id}`);
     const modeloACrear = {
-      description: jsonBody.description,
-      status: "PENDIENTE"
+    id: jsonBody._id, //revisar
+    description: jsonBody.description,
+    status: "PENDIENTE"
     };
-  
+
     const tareaCreada = await tareasLogic.create(modeloACrear);
-    res.statusCode = 200;
     res.send(tareaCreada);
     res.end();
-  }else{
+  }
+  catch (error){
     res.statusCode = 400;
     res.send({
-      details:
-        "Faltan campos requeridos",
-      message: `El campo description es requerido`
+      message: `No fue creada la tarea, falta descripcion`,
+      details: `Error: ${error}`
     });
     res.end();
-    return;
+  }
+  
   }
 
-
-
-}
 
 /**
  * Obtiene una tarea dado su identificador idTarea
@@ -183,6 +186,8 @@ async function crearTarea(req, res) {
  * @param {object} res Respuesta HTTP.
  */
 async function obtenerTarea(req, res) {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader("Access-Control-Allow-Headers", "Accept,Content-Type");
   if (!validAcceptHeader(acceptHeader)) {
     res.statusCode = 400;
     res.send({
@@ -203,7 +208,7 @@ async function obtenerTarea(req, res) {
   catch(error){
     res.statusCode = 400;
     res.send({
-      message: `Can't find objecti with id : ${idTarea}`,
+      message: `No se encuentra objeto con id : ${idTarea}`,
       details: "This endpoint expected a valid object identifier"
     });
     res.end();
@@ -218,6 +223,8 @@ async function obtenerTarea(req, res) {
  * @param {object} res Respuesta HTTP
  */
 async function modificaTarea(req, res, next) {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader("Access-Control-Allow-Headers", "Accept,Content-Type");
   const acceptHeader = req.header("Accept");
   if (!validAcceptHeader(acceptHeader)) {
     res.statusCode = 400;
@@ -254,7 +261,8 @@ async function modificaTarea(req, res, next) {
  * @param {object} res Respuesta HTTP
  */
 async function eliminaTarea(req, res, next) {
-
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader("Access-Control-Allow-Headers", "Accept,Content-Type");
   const {idTarea}  = req.params;
   try{
     const tarea = await tareasLogic.erase(idTarea);
@@ -265,7 +273,7 @@ async function eliminaTarea(req, res, next) {
   catch(error){
     res.statusCode = 400;
     res.send({
-      message: `No se encuentra eb objeto con id : ${idTarea}`,
+      message: `No se encuentra objeto con id : ${idTarea}`,
       details: "Este endpoint espera un ibjeto identificador valido"
     });
     res.end();
